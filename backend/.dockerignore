@@ -1,0 +1,6 @@
+# Never copy secrets into an image: anyone who pulls it could read them.
+.env
+.env.*
+# Not needed to build
+Dockerfile
+.dockerignore
