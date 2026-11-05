@@ -14,7 +14,7 @@ import (
 
 // getConversations handles GET /api/conversations (newest activity first, for the sidebar)
 func getConversations(c *gin.Context) {
-	conversations, err := services.ListConversations()
+	conversations, err := services.ListConversations(currentUser(c))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -25,7 +25,7 @@ func getConversations(c *gin.Context) {
 
 // createConversation handles POST /api/conversations
 func createConversation(c *gin.Context) {
-	conversation, err := services.CreateConversation()
+	conversation, err := services.CreateConversation(currentUser(c))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -42,7 +42,7 @@ func getConversationByID(c *gin.Context) {
 		return
 	}
 
-	conversation, err := services.GetConversation(id)
+	conversation, err := services.GetConversation(currentUser(c), id)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "conversation not found"})
 		return
@@ -63,7 +63,7 @@ func deleteConversation(c *gin.Context) {
 		return
 	}
 
-	found, err := services.DeleteConversation(id)
+	found, err := services.DeleteConversation(currentUser(c), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -102,7 +102,7 @@ func sendMessage(c *gin.Context) {
 	}
 
 	// c.Request.Context() cancels the coach call if the user leaves.
-	userMessage, coachMessage, err := services.SendMessage(c.Request.Context(), id, text)
+	userMessage, coachMessage, err := services.SendMessage(c.Request.Context(), currentUser(c), id, text)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "conversation not found"})
 		return

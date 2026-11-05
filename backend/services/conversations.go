@@ -21,56 +21,74 @@ const contextMessages = 20
 // ErrCoachFailed means the LLM call failed. The handler answers 502 with this text.
 var ErrCoachFailed = errors.New("the coach couldn't answer right now, please try again")
 
-// ListConversations returns up to 100 conversations, newest activity first (for the sidebar).
-func ListConversations() ([]models.Conversation, error) {
+// Every function here takes the signed-in user's ID first and only touches that user's rows:
+// each query has WHERE user_id = ?, and runs in db.AsUser so row-level security checks it too.
+// Someone else's conversation looks exactly like a missing one (gorm.ErrRecordNotFound → 404).
+
+// ListConversations returns up to 100 of the user's conversations, newest activity first (for the sidebar).
+func ListConversations(userID string) ([]models.Conversation, error) {
 	var conversations []models.Conversation
 
-	err := db.DB.Order("updated_at DESC").Limit(100).Find(&conversations).Error
+	err := db.AsUser(userID, func(tx *gorm.DB) error {
+		return tx.Where("user_id = ?", userID).Order("updated_at DESC").Limit(100).Find(&conversations).Error
+	})
 	return conversations, err
 }
 
-// CreateConversation creates an empty conversation (the first message gives it a title).
-func CreateConversation() (models.Conversation, error) {
-	var conversation models.Conversation
+// CreateConversation creates an empty conversation for the user (the first message gives it a title).
+func CreateConversation(userID string) (models.Conversation, error) {
+	conversation := models.Conversation{UserID: userID}
 
-	err := db.DB.Create(&conversation).Error
+	err := db.AsUser(userID, func(tx *gorm.DB) error {
+		return tx.Create(&conversation).Error
+	})
 	return conversation, err
 }
 
-// GetConversation returns one conversation with all its messages.
-// If it doesn't exist, the error is gorm.ErrRecordNotFound.
-func GetConversation(id string) (models.Conversation, error) {
+// GetConversation returns one of the user's conversations with all its messages.
+// If it doesn't exist (or isn't theirs), the error is gorm.ErrRecordNotFound.
+func GetConversation(userID string, id string) (models.Conversation, error) {
 	var conversation models.Conversation
 
-	// Preload also loads the conversation's messages, oldest first.
-	err := db.DB.Preload("Messages", func(query *gorm.DB) *gorm.DB { return query.Order("id") }).
-		First(&conversation, "id = ?", id).Error
+	err := db.AsUser(userID, func(tx *gorm.DB) error {
+		// Preload also loads the conversation's messages, oldest first.
+		return tx.Preload("Messages", func(query *gorm.DB) *gorm.DB {
+			return query.Where("user_id = ?", userID).Order("id")
+		}).First(&conversation, "id = ? AND user_id = ?", id, userID).Error
+	})
 	return conversation, err
 }
 
-// DeleteConversation deletes a conversation and its messages.
-// found is false if there was no conversation with that id.
-func DeleteConversation(id string) (found bool, err error) {
-	result := db.DB.Delete(&models.Conversation{}, "id = ?", id)
-	return result.RowsAffected > 0, result.Error
+// DeleteConversation deletes one of the user's conversations and its messages.
+// found is false if they have no conversation with that id.
+func DeleteConversation(userID string, id string) (found bool, err error) {
+	err = db.AsUser(userID, func(tx *gorm.DB) error {
+		result := tx.Delete(&models.Conversation{}, "id = ? AND user_id = ?", id, userID)
+		found = result.RowsAffected > 0
+		return result.Error
+	})
+	return found, err
 }
 
-// SendMessage answers a (validated) message from the user:
+// SendMessage answers a (validated) message from the user in one of their conversations:
 // 1. load the recent history  2. ask the coach  3. save the question AND the answer.
+// Steps 1 and 3 are two short transactions: none stays open while the coach thinks.
 // If the coach fails, nothing is saved, so the user can simply send again.
-// If the conversation doesn't exist, the error is gorm.ErrRecordNotFound.
-func SendMessage(ctx context.Context, id string, text string) (models.Message, models.Message, error) {
+// If the conversation doesn't exist (or isn't theirs), the error is gorm.ErrRecordNotFound.
+func SendMessage(ctx context.Context, userID string, id string, text string) (models.Message, models.Message, error) {
 	askedAt := time.Now()
 
+	// 1. The conversation, and its last messages: the newest ones, then flipped to oldest first.
 	var conversation models.Conversation
-	err := db.DB.First(&conversation, "id = ?", id).Error
-	if err != nil {
-		return models.Message{}, models.Message{}, err
-	}
-
-	// 1. The last messages of this chat: the newest ones, then flipped to oldest first.
 	var history []models.Message
-	err = db.DB.Where("conversation_id = ?", id).Order("id DESC").Limit(contextMessages - 1).Find(&history).Error
+	err := db.AsUser(userID, func(tx *gorm.DB) error {
+		err := tx.First(&conversation, "id = ? AND user_id = ?", id, userID).Error
+		if err != nil {
+			return err
+		}
+		return tx.Where("conversation_id = ? AND user_id = ?", id, userID).
+			Order("id DESC").Limit(contextMessages - 1).Find(&history).Error
+	})
 	if err != nil {
 		return models.Message{}, models.Message{}, err
 	}
@@ -84,10 +102,10 @@ func SendMessage(ctx context.Context, id string, text string) (models.Message, m
 	}
 
 	// 3. Save both messages in ONE transaction: both are saved, or neither is.
-	userMessage := models.Message{ConversationID: id, Role: "user", Content: text, CreatedAt: askedAt}
-	coachMessage := models.Message{ConversationID: id, Role: "assistant", Content: reply}
+	userMessage := models.Message{ConversationID: id, UserID: userID, Role: "user", Content: text, CreatedAt: askedAt}
+	coachMessage := models.Message{ConversationID: id, UserID: userID, Role: "assistant", Content: reply}
 
-	err = db.DB.Transaction(func(tx *gorm.DB) error {
+	err = db.AsUser(userID, func(tx *gorm.DB) error {
 		if err := tx.Create(&userMessage).Error; err != nil {
 			return err // returning an error rolls everything back
 		}
@@ -98,7 +116,7 @@ func SendMessage(ctx context.Context, id string, text string) (models.Message, m
 		if conversation.Title == "" {
 			updates["title"] = titleFrom(text) // the first message names the chat
 		}
-		return tx.Model(&conversation).Updates(updates).Error
+		return tx.Model(&conversation).Where("user_id = ?", userID).Updates(updates).Error
 	})
 	if err != nil {
 		return models.Message{}, models.Message{}, err

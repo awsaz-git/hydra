@@ -31,6 +31,15 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: llm-api-key
+            # Clerk's public key (PEM), to check sign-in tokens. Not secret, but kept with the others.
+            - name: CLERK_JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: clerk-jwt-key
+            # The frontends allowed to send tokens (the laptop's Next.js for now)
+            - name: CLERK_AUTHORIZED_PARTIES
+              value: "http://localhost:3000"
 ---
 apiVersion: v1
 kind: Service
