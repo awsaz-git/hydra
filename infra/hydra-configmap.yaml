@@ -1,8 +1,0 @@
-# Non-secret settings shared by Postgres and the backend.
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: hydra-configmap
-data:
-  db-host: postgres-service
-  db-name: hydra

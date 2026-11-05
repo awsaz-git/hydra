@@ -11,8 +11,6 @@ Deepseek Api key.text
 *api key*
 *Api key*
 
-# Postgres credentials (copy infra/postgres-secret.example.yaml to create it)
-infra/postgres-secret.yaml
 
 # Private notes and Claude Code config (kept local only)
 docs/
