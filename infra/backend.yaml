@@ -16,33 +16,16 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ropemaxxing/hydra-backend:v2
+          image: ropemaxxing/hydra-backend:v3
           ports:
             - containerPort: 8080
           env:
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-user
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: postgres-password
-            - name: DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: hydra-configmap
-                  key: db-host
-            - name: DB_NAME
-              valueFrom:
-                configMapKeyRef:
-                  name: hydra-configmap
-                  key: db-name
-            # $(VAR) inserts the variables above, so the backend gets one
+            # Neon, role hydra_app, pooled host (the owner's password is never in the cluster).
             - name: DATABASE_URL
-              value: "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):5432/$(DB_NAME)?sslmode=disable"
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: database-url
             - name: LLM_API_KEY
               valueFrom:
                 secretKeyRef:
