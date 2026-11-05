@@ -34,6 +34,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import type { Conversation } from "@/lib/types"
+import { brand } from "@/lib/brand"
 
 /** Splits conversations into "Today" and "Previous" by last activity. */
 function groupByDay(list: Conversation[], today: string) {
@@ -95,7 +96,7 @@ export function AppSidebar() {
     <>
       <Sidebar>
         <SidebarHeader className="gap-4 p-4">
-          <Link href="/" aria-label="Hydra home">
+          <Link href="/" aria-label={`${brand.name} home`}>
             <Logo />
           </Link>
           <Button asChild className="edge-glow hover:edge-glow-hover h-9 w-full rounded-[10px] transition-shadow duration-500 ease-out hover:bg-primary">

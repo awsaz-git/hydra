@@ -6,6 +6,7 @@ import { ArrowUp02Icon } from "@hugeicons/core-free-icons"
 
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { brand } from "@/lib/brand"
 
 const MAX_CHARS = 4000 // same limit the backend enforces
 
@@ -38,7 +39,7 @@ export function Composer({ onSend, disabled }: { onSend: (text: string) => void;
               submit()
             }
           }}
-          placeholder="Message Hydra…"
+          placeholder={`Message ${brand.coachName}…`}
           maxLength={MAX_CHARS}
           rows={1}
           aria-label="Message"

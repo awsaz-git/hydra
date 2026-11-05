@@ -24,6 +24,12 @@ import (
 //go:embed system_prompt.md
 var systemPrompt string
 
+// promptFor fills the coach's persona name into the system prompt ({{coach_name}}),
+// so a rename is a setting (COACH_NAME), not an edit to the training rules.
+func promptFor(coachName string) string {
+	return strings.ReplaceAll(systemPrompt, "{{coach_name}}", coachName)
+}
+
 // The LLM API has no time limit of its own, so we set one.
 var httpClient = &http.Client{Timeout: 90 * time.Second}
 
@@ -36,7 +42,10 @@ type chatMessage struct {
 // askCoach sends the system prompt + chat history + the new message to
 // DeepSeek and returns the coach's reply.
 func askCoach(ctx context.Context, history []models.Message, newMessage string) (string, error) {
-	messages := []chatMessage{{Role: "system", Content: systemPrompt}}
+	// Read here, not at startup: package variables are set before main() loads .env.
+	prompt := promptFor(config.GetEnv("COACH_NAME", "Hydra"))
+
+	messages := []chatMessage{{Role: "system", Content: prompt}}
 	for _, m := range history {
 		messages = append(messages, chatMessage{Role: m.Role, Content: m.Content})
 	}

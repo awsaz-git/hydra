@@ -1,37 +1,33 @@
+import { brand } from "@/lib/brand"
 import { cn } from "@/lib/utils"
 
 /**
- * The "hy" ligature mark (docs/brand/logo.svg): the h's right leg flows into the y.
- * Drawn as one stroke weight with round ends, in currentColor.
+ * The logo mark, drawn from the files in public/brand/ (a new logo = replace the files):
+ *   mark.svg        regular stroke, for large marks (48px and up)
+ *   mark-small.svg  bolder stroke for small marks (sidebar, avatar) so they never look thin
+ *   icon.svg        the favicon / app icon (set in app/layout.tsx)
  *
- * `weight` is the stroke width: use the regular 5.5 for large marks and a bolder
- * 7–7.5 for small ones (sidebar, avatar, favicon) so they never look thin.
+ * The SVG is used as a CSS mask over a block painted in currentColor, so the mark takes
+ * the text color like an icon does. The file's own colors don't matter, only its shape.
+ * className (size, logo-glow) goes on the outer span: CSS applies filters before masks,
+ * so a glow on the masked span itself would be cut off.
  */
-export function LogoMark({ className, weight = 5.5 }: { className?: string; weight?: number }) {
+export function LogoMark({ className, small = false }: { className?: string; small?: boolean }) {
+  const mask = `url(/brand/${small ? "mark-small" : "mark"}.svg) center / contain no-repeat`
+
   return (
-    <svg
-      viewBox="0 0 64 64"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={weight}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-      className={className}
-    >
-      <path d="M15 7 V43" />
-      <path d="M15 26 C15 18.5 31 18.5 31 26 V32 C31 39.5 35 42.5 40.5 42.5 C46 42.5 49.5 39.5 49.5 32" />
-      <path d="M49.5 23 V46.5 C49.5 54.5 44.5 57.5 37.5 57.5" />
-    </svg>
+    <span aria-hidden="true" className={cn("inline-block shrink-0", className)}>
+      <span className="block size-full bg-current" style={{ mask, WebkitMask: mask }} />
+    </span>
   )
 }
 
-/** Mark + "hydra" wordmark. */
+/** Mark + wordmark. */
 export function Logo({ className }: { className?: string }) {
   return (
     <span className={cn("flex items-center gap-2", className)}>
-      <LogoMark className="size-6 logo-glow" weight={7} />
-      <span className="text-lg font-semibold tracking-[-0.045em]">hydra</span>
+      <LogoMark className="size-6 logo-glow" small />
+      <span className="text-lg font-semibold tracking-[-0.045em]">{brand.wordmark}</span>
     </span>
   )
 }
