@@ -17,7 +17,7 @@ export function CoachAvatar({ thinking = false }: { thinking?: boolean }) {
         thinking && "coach-pulse"
       )}
     >
-      <LogoMark className="size-4" weight={7.5} />
+      <LogoMark className="size-4" small />
     </div>
   )
 }

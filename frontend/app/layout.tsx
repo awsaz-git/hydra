@@ -6,14 +6,17 @@ import { ConversationsProvider } from "@/components/chat/conversations-provider"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { brand } from "@/lib/brand"
 import "./globals.css"
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Hydra",
-  description: "Hydra, your hybrid training coach: strength, speed and running.",
+  // Pages that set their own title get "<title> · <name>"
+  title: { default: brand.name, template: `%s · ${brand.name}` },
+  description: brand.description,
+  icons: { icon: "/brand/icon.svg" }, // the logo files live in public/brand/
 }
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
