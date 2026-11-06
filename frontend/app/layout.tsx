@@ -9,6 +9,8 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { directionOf } from "@/i18n/config"
 import { AFTER_AUTH_URL, SIGN_IN_URL, SIGN_UP_URL } from "@/lib/auth-routes"
 import { brand } from "@/lib/brand"
+import { defaultTheme } from "@/lib/themes"
+import { cn } from "@/lib/utils"
 import "./globals.css"
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] })
@@ -26,11 +28,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const locale = await getLocale() // from i18n/request.ts
+  const theme = defaultTheme
 
   return (
-    // "dark" is always on: the brand is dark-only for v1 (docs/BRAND.md).
+    // data-theme picks the token values in globals.css; "dark" turns on shadcn's dark: styles.
     // dir: right-to-left languages flip the layout (we use start/end classes, not left/right).
-    <html lang={locale} dir={directionOf(locale)} className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang={locale}
+      dir={directionOf(locale)}
+      data-theme={theme.id}
+      className={cn(theme.colorScheme === "dark" && "dark", geistSans.variable, geistMono.variable, "h-full antialiased")}
+    >
       <body className="h-full">
         {/* Clerk's session state for the hooks (useSignIn, useAuth, ...). Goes inside <body>. */}
         <ClerkProvider
@@ -43,7 +51,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           {/* Gives client components the messages (useTranslations); loaded on the server */}
           <NextIntlClientProvider>
             <TooltipProvider>{children}</TooltipProvider>
-            <Toaster position="top-center" duration={3000} />
+            <Toaster position="top-center" duration={3000} theme={theme.colorScheme} />
           </NextIntlClientProvider>
         </ClerkProvider>
       </body>

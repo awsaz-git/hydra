@@ -5,11 +5,9 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { CheckmarkCircle02Icon, InformationCircleIcon, Alert02Icon, MultiplicationSignCircleIcon, Loading03Icon } from "@hugeicons/core-free-icons"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  // dark-only brand: no theme switching
-
+  // The color scheme comes from the theme (app/layout.tsx passes it in props)
   return (
     <Sonner
-      theme="dark"
       className="toaster group"
       icons={{
         success: (
