@@ -27,21 +27,20 @@ func noStore(c *gin.Context) {
 func requireAuth(c *gin.Context) {
 	token, found := strings.CutPrefix(c.GetHeader("Authorization"), "Bearer ")
 	if !found || token == "" {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "not signed in"})
+		respondError(c, http.StatusUnauthorized, codeNotSignedIn, "Not signed in", nil)
 		return
 	}
 
 	clerkID, err := services.VerifyToken(c.Request.Context(), token)
 	if err != nil {
 		log.Println("auth: rejected token:", err) // the reason only, never the token
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "not signed in"})
+		respondError(c, http.StatusUnauthorized, codeNotSignedIn, "Not signed in", nil)
 		return
 	}
 
 	userID, err := services.UserIDForClerk(clerkID)
 	if err != nil {
-		log.Println("auth: user lookup failed:", err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "something went wrong"})
+		respondInternal(c, err)
 		return
 	}
 
@@ -55,13 +54,14 @@ func rateLimit(bucket string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		wait, err := services.CheckRateLimit(currentUser(c), bucket)
 		if err != nil {
-			log.Println("rate limit check failed:", err)
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "something went wrong"})
+			respondInternal(c, err)
 			return
 		}
 		if wait > 0 {
-			c.Header("Retry-After", strconv.Itoa(int(wait.Seconds())))
-			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{"error": "too many requests, please wait a moment"})
+			seconds := int(wait.Seconds())
+			c.Header("Retry-After", strconv.Itoa(seconds))
+			respondError(c, http.StatusTooManyRequests, codeTooManyRequests, "Too many requests, please wait a moment",
+				gin.H{"retry_after": seconds})
 			return
 		}
 		c.Next()

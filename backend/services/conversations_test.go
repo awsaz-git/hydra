@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"strings"
 	"testing"
 )
@@ -9,25 +10,21 @@ func TestValidateMessage(t *testing.T) {
 	tests := []struct {
 		name    string
 		text    string
-		wantErr string // "" means no error expected
+		wantErr error // nil means no error expected
 	}{
-		{"normal message", "How many sets for chest?", ""},
-		{"exactly 4000 characters", strings.Repeat("a", 4000), ""},
-		{"empty", "", "message can't be empty"},
-		{"too long", strings.Repeat("a", 4001), "message must be 4000 characters or less"},
+		{"normal message", "How many sets for chest?", nil},
+		{"exactly the maximum", strings.Repeat("a", MaxMessageLength), nil},
+		{"empty", "", ErrMessageEmpty},
+		{"one character too long", strings.Repeat("a", MaxMessageLength+1), ErrMessageTooLong},
+		{"long but multi-byte characters still count as one each", strings.Repeat("é", MaxMessageLength), nil},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidateMessage(tt.text)
 
-			got := ""
-			if err != nil {
-				got = err.Error()
-			}
-
-			if got != tt.wantErr {
-				t.Errorf("ValidateMessage() error = %q, want %q", got, tt.wantErr)
+			if !errors.Is(err, tt.wantErr) || (tt.wantErr == nil && err != nil) {
+				t.Errorf("ValidateMessage() error = %v, want %v", err, tt.wantErr)
 			}
 		})
 	}
