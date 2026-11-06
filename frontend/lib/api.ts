@@ -1,6 +1,6 @@
 // Every call to the backend goes through here. The browser calls /api/... on
 // Next.js, and app/api/[...path]/route.ts forwards it to the Go backend.
-import type { Conversation, SendMessageResult } from "@/lib/types"
+import type { Conversation, Finding, OnboardingInput, SendMessageResult } from "@/lib/types"
 
 /**
  * An error from the backend: {"error": {"code", "message", "params"}} (docs/ENGINEERING.md → error codes).
@@ -29,7 +29,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const error = body?.error
     throw new ApiError(res.status, error?.code ?? "internal", error?.message ?? "Something went wrong", error?.params)
   }
-  return (res.status === 204 ? undefined : await res.json()) as T
+  // Some answers have no body (204, or 201 from a save): read the text first, so an empty
+  // body is "no data" rather than a JSON error on a request that worked.
+  const text = await res.text()
+  return (text ? JSON.parse(text) : undefined) as T
 }
 
 export const api = {
@@ -40,6 +43,14 @@ export const api = {
   getConversation: (id: string) => request<Conversation>(`/conversations/${id}`),
 
   deleteConversation: (id: string) => request<void>(`/conversations/${id}`, { method: "DELETE" }),
+
+  checkOnboarding: (input: OnboardingInput) =>
+    request<{ findings: Finding[] }>("/onboarding/check", { method: "POST", body: JSON.stringify(input) }),
+
+  submitOnboarding: (input: OnboardingInput) => request<void>("/onboarding", { method: "POST", body: JSON.stringify(input) }),
+
+  giveConsent: (policyVersion: string) =>
+    request<void>("/consent", { method: "POST", body: JSON.stringify({ policy_version: policyVersion }) }),
 
   sendMessage: (id: string, content: string) =>
     request<SendMessageResult>(`/conversations/${id}/messages`, {

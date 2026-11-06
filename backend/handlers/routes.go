@@ -17,6 +17,10 @@ func RegisterRoutes(router *gin.Engine) {
 
 	// Everything under /api: never cached, signed-in users only, rate-limited per user.
 	api := router.Group("/api", noStore, requireAuth, rateLimit("api"))
+	api.GET("/me", getMe) // onboarding done? consent current?
+	api.POST("/onboarding/check", checkOnboarding)
+	api.POST("/onboarding", submitOnboarding)
+	api.POST("/consent", giveConsent)
 	api.GET("/conversations", getConversations)
 	api.POST("/conversations", createConversation)
 	api.GET("/conversations/:id", getConversationByID)

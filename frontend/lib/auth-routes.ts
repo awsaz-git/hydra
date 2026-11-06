@@ -4,5 +4,9 @@ export const SIGN_IN_URL = "/sign-in"
 export const SIGN_UP_URL = "/sign-up"
 // Where you land after signing in or up (onboarding takes over later).
 export const AFTER_AUTH_URL = "/"
+// Where new users answer the onboarding questions (and existing ones agree to a new policy).
+export const ONBOARDING_URL = "/onboarding"
+// The privacy policy (public: signed in or not).
+export const PRIVACY_URL = "/privacy"
 // Forgot password, and where a user goes whose password must be replaced (a session task).
 export const RESET_PASSWORD_URL = "/reset-password"

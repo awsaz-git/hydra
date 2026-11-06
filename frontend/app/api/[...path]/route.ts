@@ -6,9 +6,8 @@
 import type { NextRequest } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
-// Accept "http://host:port", "http://host:port/" and "http://host:port/api":
-// strip trailing slashes and a trailing /api, since /api/... is added below.
-const BACKEND_URL = (process.env.BACKEND_URL ?? "http://localhost:8080").replace(/\/+$/, "").replace(/\/api$/, "")
+import { BACKEND_URL } from "@/lib/backend"
+
 console.log(`[proxy] forwarding /api/* to ${BACKEND_URL}`)
 
 async function forward(req: NextRequest, ctx: RouteContext<"/api/[...path]">) {

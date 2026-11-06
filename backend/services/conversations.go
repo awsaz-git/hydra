@@ -77,7 +77,8 @@ func DeleteConversation(userID string, id string) (found bool, err error) {
 	return found, err
 }
 
-// SendMessage answers a (validated) message from the user in one of their conversations:
+// SendMessage answers a (validated) message from the user in one of their conversations.
+// Without consent to the current privacy policy the error is ErrConsentRequired.
 // 1. load the recent history  2. ask the coach  3. save the question AND the answer.
 // Steps 1 and 3 are two short transactions: none stays open while the coach thinks.
 // If the coach fails, nothing is saved, so the user can simply send again.
@@ -86,12 +87,20 @@ func SendMessage(ctx context.Context, userID string, id string, text string) (mo
 	askedAt := time.Now()
 
 	// 1. The conversation, and its last messages: the newest ones, then flipped to oldest first.
+	// Nothing goes to the LLM (DeepSeek, in China) without consent to the current privacy policy.
 	var conversation models.Conversation
 	var history []models.Message
 	err := db.AsUser(userID, func(tx *gorm.DB) error {
 		err := tx.First(&conversation, "id = ? AND user_id = ?", id, userID).Error
 		if err != nil {
 			return err
+		}
+		consented, err := hasCurrentConsent(tx, userID)
+		if err != nil {
+			return err
+		}
+		if !consented {
+			return ErrConsentRequired
 		}
 		return tx.Where("conversation_id = ? AND user_id = ?", id, userID).
 			Order("id DESC").Limit(contextMessages - 1).Find(&history).Error

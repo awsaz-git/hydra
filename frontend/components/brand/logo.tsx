@@ -12,12 +12,13 @@ import { cn } from "@/lib/utils"
  * className (size, logo-glow) goes on the outer span: CSS applies filters before masks,
  * so a glow on the masked span itself would be cut off.
  */
-export function LogoMark({ className, small = false }: { className?: string; small?: boolean }) {
+export function LogoMark({ className, small = false, shimmer = false }: { className?: string; small?: boolean; shimmer?: boolean }) {
   const mask = `url(/brand/${small ? "mark-small" : "mark"}.svg) center / contain no-repeat`
 
   return (
     <span aria-hidden="true" className={cn("inline-block shrink-0", className)}>
-      <span className="block size-full bg-current" style={{ mask, WebkitMask: mask }} />
+      {/* shimmer: a light sweeping through the mark (the loading state) instead of a flat color */}
+      <span className={cn("block size-full", shimmer ? "logo-shimmer" : "bg-current")} style={{ mask, WebkitMask: mask }} />
     </span>
   )
 }

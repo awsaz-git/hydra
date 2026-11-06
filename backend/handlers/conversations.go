@@ -112,6 +112,10 @@ func sendMessage(c *gin.Context) {
 		conversationNotFound(c)
 		return
 	}
+	if errors.Is(err, services.ErrConsentRequired) {
+		respondError(c, http.StatusForbidden, codeConsentRequired, "Agree to the current privacy policy first", nil)
+		return
+	}
 	if errors.Is(err, services.ErrCoachFailed) {
 		respondError(c, http.StatusBadGateway, codeCoachUnavailable, "The coach couldn't answer right now, please try again", nil)
 		return
