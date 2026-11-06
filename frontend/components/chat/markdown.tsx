@@ -1,10 +1,11 @@
 import ReactMarkdown from "react-markdown"
 
-/** Renders the coach's replies (bold, lists, inline code), styled with brand tokens. */
+/** Renders Markdown (the coach's replies, the privacy policy), styled with brand tokens. No raw HTML. */
 export function Markdown({ children }: { children: string }) {
   return (
     <ReactMarkdown
       components={{
+        h2: (props) => <h2 className="mt-8 mb-3 text-[17px] font-semibold tracking-[-0.01em] text-foreground first:mt-0" {...props} />,
         p: (props) => <p className="mb-3 leading-7 last:mb-0" {...props} />,
         ul: (props) => <ul className="mb-3 list-disc space-y-1.5 ps-5 last:mb-0 marker:text-hint" {...props} />,
         ol: (props) => <ol className="mb-3 list-decimal space-y-1.5 ps-5 last:mb-0 marker:text-hint" {...props} />,

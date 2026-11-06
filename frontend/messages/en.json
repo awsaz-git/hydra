@@ -6,7 +6,8 @@
   "metadata": {
     "signIn": "Sign in",
     "signUp": "Create account",
-    "resetPassword": "Reset password"
+    "resetPassword": "Reset password",
+    "privacy": "Privacy policy"
   },
   "chat": {
     "home": "{brand} home",
@@ -119,5 +120,10 @@
     "coach_unavailable": "{coach} couldn't answer right now. Please try again.",
     "backend_unreachable": "Can't reach the server. Check your connection and try again.",
     "internal": "Something went wrong. Please try again."
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "lastUpdated": "Last updated {date}",
+    "backHome": "{brand} home"
   }
 }

@@ -14,16 +14,19 @@ export const brand: Brand = {
   wordmark: "hydra",
   /** The coach's persona name in the chat. The backend has its own COACH_NAME setting. */
   coachName: "Hydra",
-  /** Not set until there's a domain. Anything that shows it must handle null. */
-  supportEmail: null,
-  /** The company or person behind the product (privacy policy, emails). Not set yet. */
-  legalName: null,
+  /**
+   * Where people write with questions, incl. privacy requests (the privacy policy shows it).
+   * PLACEHOLDER until there's a domain: change only this value.
+   */
+  supportEmail: "contact@example.com",
+  /** Who runs the product (the privacy policy names them). PLACEHOLDER: change only this value. */
+  legalName: "Hydra (operator details to follow)",
 }
 
 type Brand = {
   name: string
   wordmark: string
   coachName: string
-  supportEmail: string | null
-  legalName: string | null
+  supportEmail: string
+  legalName: string
 }
