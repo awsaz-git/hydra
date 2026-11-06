@@ -1,18 +1,16 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 
 import { CoachAvatar } from "@/components/chat/message"
 
-const STEPS = [
-  "Reading your history",
-  "Checking your training rules",
-  "Planning your answer",
-  "Writing it up",
-]
+// The status texts shown in turn (messages → chat.thinking.<step>)
+const STEPS = ["history", "rules", "planning", "writing"] as const
 
 /** Shown while waiting for the coach: pulsing avatar + rotating, shimmering status text. */
 export function CoachThinking() {
+  const t = useTranslations("chat.thinking")
   const [step, setStep] = useState(0)
 
   useEffect(() => {
@@ -26,7 +24,7 @@ export function CoachThinking() {
       <CoachAvatar thinking />
       {/* key={step} re-mounts the text so each new step fades in */}
       <span key={step} className="text-shimmer text-sm font-medium animate-in fade-in duration-500">
-        {STEPS[step]}…
+        {t(STEPS[step])}
       </span>
     </div>
   )

@@ -3,13 +3,14 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth, useSignUp } from "@clerk/nextjs"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { CodeField, Field, PasswordField } from "@/components/flow/field"
 import { FlowShell } from "@/components/flow/flow-shell"
 import { FormError, SubmitButton, TextAction } from "@/components/flow/form-parts"
 import { useFormSubmit } from "@/components/flow/use-form-submit"
-import { afterAuth, fieldError, formError } from "@/lib/auth"
+import { afterAuth, useAuthErrors } from "@/lib/auth"
 import { SIGN_IN_URL } from "@/lib/auth-routes"
 import { brand } from "@/lib/brand"
 
@@ -23,6 +24,9 @@ export function SignUpForm() {
   const { isLoaded, isSignedIn } = useAuth()
   const { signUp, errors, fetchStatus } = useSignUp()
   const router = useRouter()
+  const t = useTranslations("auth")
+  const tBrand = useTranslations("brand")
+  const authErrors = useAuthErrors()
 
   const start = useFormSubmit(async (form) => {
     const { error } = await signUp.password({
@@ -45,12 +49,12 @@ export function SignUpForm() {
 
   async function resend() {
     const { error } = await signUp.verifications.sendEmailCode()
-    if (!error) toast.success("We sent you a new code.")
+    if (!error) toast.success(t("codeSent"))
   }
 
   // Signed up: finalize() is taking you into the app.
   if (isSignedIn || signUp.status === "complete") {
-    return <FlowShell title="Signing you in…">{null}</FlowShell>
+    return <FlowShell title={t("signingIn")}>{null}</FlowShell>
   }
 
   // Step 2: the account exists, only the email still needs its code.
@@ -62,17 +66,17 @@ export function SignUpForm() {
   if (needsCode) {
     return (
       <FlowShell
-        title="Check your email"
-        description={`We sent a 6-digit code to ${signUp.emailAddress}.`}
-        footer={<TextAction onClick={() => signUp.reset()}>Use a different email</TextAction>}
+        title={t("signUp.checkEmail")}
+        description={t("codeSentTo", { email: signUp.emailAddress ?? "" })}
+        footer={<TextAction onClick={() => signUp.reset()}>{t("signUp.differentEmail")}</TextAction>}
       >
         <form method="post" onSubmit={verify.onSubmit} className="space-y-4">
-          <CodeField id="code" name="code" label="Verification code" required autoFocus error={fieldError(errors.fields.code)} />
-          <FormError>{formError(errors)}</FormError>
-          <SubmitButton pending={verify.busy}>Verify email</SubmitButton>
+          <CodeField id="code" name="code" label={t("verificationCode")} required autoFocus error={authErrors.field(errors.fields.code)} />
+          <FormError>{authErrors.form(errors)}</FormError>
+          <SubmitButton pending={verify.busy}>{t("signUp.verify")}</SubmitButton>
           <div className="text-center">
             <TextAction onClick={resend} disabled={verify.busy || fetchStatus === "fetching"}>
-              Send a new code
+              {t("sendNewCode")}
             </TextAction>
           </div>
         </form>
@@ -85,16 +89,15 @@ export function SignUpForm() {
 
   return (
     <FlowShell
-      title={`Create your ${brand.name} account`}
-      description={brand.description}
-      footer={
-        <>
-          Already have an account?{" "}
+      title={t("signUp.title", { brand: brand.name })}
+      description={tBrand("description")}
+      footer={t.rich("signUp.haveAccount", {
+        link: (text) => (
           <Link href={SIGN_IN_URL} className="text-foreground underline-offset-4 hover:underline">
-            Sign in
+            {text}
           </Link>
-        </>
-      }
+        ),
+      })}
     >
       {/* method="post": if this ever submitted without JavaScript, the password must not land in the URL */}
       <form method="post" onSubmit={start.onSubmit} className="space-y-4">
@@ -102,27 +105,23 @@ export function SignUpForm() {
           id="email"
           name="email"
           type="email"
-          label="Email"
+          label={t("email")}
           autoComplete="email"
           required
           autoFocus
-          error={fieldError(errors.fields.emailAddress)}
+          error={authErrors.field(errors.fields.emailAddress)}
         />
         <PasswordField
           id="password"
           name="password"
-          label="Password"
+          label={t("password")}
           autoComplete="new-password"
           required
-          error={fieldError(errors.fields.password)}
+          error={authErrors.field(errors.fields.password)}
         />
-        <FormError>
-          {blockedByCheck
-            ? "We couldn't run the security check in this browser. Reload the page, or try another browser."
-            : formError(errors)}
-        </FormError>
+        <FormError>{blockedByCheck ? t("securityCheckFailed") : authErrors.form(errors)}</FormError>
         <SubmitButton pending={start.busy} disabled={!isLoaded}>
-          Create account
+          {t("signUp.submit")}
         </SubmitButton>
       </form>
     </FlowShell>

@@ -1,34 +1,46 @@
 // Small helpers shared by the custom auth flows (components/auth/*), built on Clerk's hooks.
 import type { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import type { Errors, FieldError, SetActiveNavigate } from "@clerk/nextjs/types"
 
 import { AFTER_AUTH_URL, RESET_PASSWORD_URL } from "@/lib/auth-routes"
 
-const GENERIC = "Something went wrong. Please try again."
-
-/** The text to show under a field, from Clerk's field error (or null). */
-export function fieldError(error: FieldError | null): string | null {
-  return error ? (error.longMessage ?? error.message) : null
-}
-
 /**
- * The text for an error that isn't about one field: rate limits, a locked account,
- * the bot check failing to load, a network error. Clerk's API messages are already
- * user-facing; anything else gets a generic message (it's in the console for debugging).
+ * Turns Clerk's errors into text in the user's language. A Clerk error code we have a
+ * message for (messages → auth.clerkErrors) uses ours; any other falls back to Clerk's
+ * own English sentence, so an unknown code still shows something sensible.
  */
-export function formError(errors: Errors<unknown>): string | null {
-  const error = errors.global?.[0]
-  if (!error) return null
+export function useAuthErrors() {
+  const t = useTranslations()
 
-  if (error.code === "protect_check_script_load_failed") {
-    return "The security check couldn't load. Turn off content blockers for this page and try again."
+  function textFor(code: string, clerkText: string | undefined): string {
+    const key = `auth.clerkErrors.${code}` as Parameters<typeof t>[0]
+    return t.has(key) ? t(key) : (clerkText ?? t("errors.internal"))
   }
-  if (error.isClerkAPIResponseError()) {
-    const first = error.errors[0]
-    return first ? (first.longMessage ?? first.message) : GENERIC
+
+  return {
+    /** The text to show under a field (or null). */
+    field(error: FieldError | null): string | null {
+      return error ? textFor(error.code, error.longMessage ?? error.message) : null
+    },
+
+    /**
+     * The text for an error that isn't about one field: rate limits, a locked account,
+     * the bot check failing to load, a network error.
+     */
+    form(errors: Errors<unknown>): string | null {
+      const error = errors.global?.[0]
+      if (!error) return null
+
+      if (error.code === "protect_check_script_load_failed") return t("auth.securityCheckBlocked")
+      if (error.isClerkAPIResponseError()) {
+        const first = error.errors[0]
+        return first ? textFor(first.code, first.longMessage ?? first.message) : t("errors.internal")
+      }
+      console.error(error) // not from Clerk's API (e.g. a network error): the detail is for debugging
+      return t("errors.internal")
+    },
   }
-  console.error(error)
-  return GENERIC
 }
 
 /**

@@ -1,3 +1,7 @@
+"use client"
+
+import { useTranslations } from "next-intl"
+
 import { LogoMark } from "@/components/brand/logo"
 import { Markdown } from "@/components/chat/markdown"
 import { cn } from "@/lib/utils"
@@ -23,11 +27,12 @@ export function CoachAvatar({ thinking = false }: { thinking?: boolean }) {
 }
 
 export function UserMessage({ message, onRetry }: { message: UiMessage; onRetry: () => void }) {
+  const t = useTranslations("chat")
   return (
     <div className="flex flex-col items-end gap-1">
       <div
         className={cn(
-          "max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-bubble px-4 py-2.5 text-[15px] leading-6",
+          "max-w-[80%] whitespace-pre-wrap rounded-2xl rounded-ee-md bg-bubble px-4 py-2.5 text-[15px] leading-6",
           message.failed && "opacity-60"
         )}
       >
@@ -35,9 +40,9 @@ export function UserMessage({ message, onRetry }: { message: UiMessage; onRetry:
       </div>
       {message.failed && (
         <p className="text-xs text-destructive">
-          Not sent ·{" "}
+          {t("notSent")} ·{" "}
           <button onClick={onRetry} className="underline underline-offset-2">
-            Retry
+            {t("retry")}
           </button>
         </p>
       )}

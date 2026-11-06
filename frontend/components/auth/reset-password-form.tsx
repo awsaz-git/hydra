@@ -4,13 +4,14 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { useAuth, useSignIn } from "@clerk/nextjs"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { CodeField, Field, PasswordField } from "@/components/flow/field"
 import { FlowShell } from "@/components/flow/flow-shell"
 import { FormError, SubmitButton, TextAction } from "@/components/flow/form-parts"
 import { useFormSubmit } from "@/components/flow/use-form-submit"
-import { afterAuth, fieldError, formError } from "@/lib/auth"
+import { afterAuth, useAuthErrors } from "@/lib/auth"
 import { SIGN_IN_URL } from "@/lib/auth-routes"
 
 /**
@@ -22,6 +23,8 @@ export function ResetPasswordForm() {
   const { isLoaded, isSignedIn } = useAuth()
   const { signIn, errors, fetchStatus } = useSignIn()
   const router = useRouter()
+  const t = useTranslations("auth")
+  const authErrors = useAuthErrors()
   // The email the code went to; null until it's sent (Clerk has no status for "code sent").
   const [sentTo, setSentTo] = useState<string | null>(null)
   const [unsupported, setUnsupported] = useState(false)
@@ -59,35 +62,35 @@ export function ResetPasswordForm() {
 
   async function resend() {
     const { error } = await signIn.resetPasswordEmailCode.sendCode()
-    if (!error) toast.success("We sent you a new code.")
+    if (!error) toast.success(t("codeSent"))
   }
 
   const backToSignIn = (
     <Link href={SIGN_IN_URL} className="text-foreground underline-offset-4 hover:underline">
-      Back to sign in
+      {t("reset.backToSignIn")}
     </Link>
   )
 
   if (isSignedIn || signIn.status === "complete") {
-    return <FlowShell title="Signing you in…">{null}</FlowShell>
+    return <FlowShell title={t("signingIn")}>{null}</FlowShell>
   }
 
   // Step 3: the code was right.
   if (signIn.status === "needs_new_password") {
     return (
-      <FlowShell title="Choose a new password" description="You'll be signed out on every other device." footer={backToSignIn}>
+      <FlowShell title={t("reset.newTitle")} description={t("reset.newDescription")} footer={backToSignIn}>
         <form method="post" onSubmit={setPassword.onSubmit} className="space-y-4">
           <PasswordField
             id="password"
             name="password"
-            label="New password"
+            label={t("newPassword")}
             autoComplete="new-password"
             required
             autoFocus
-            error={fieldError(errors.fields.password)}
+            error={authErrors.field(errors.fields.password)}
           />
-          <FormError>{unsupported ? "This account needs a sign-in step we don't support yet." : formError(errors)}</FormError>
-          <SubmitButton pending={setPassword.busy}>Set password and sign in</SubmitButton>
+          <FormError>{unsupported ? t("unsupportedStep") : authErrors.form(errors)}</FormError>
+          <SubmitButton pending={setPassword.busy}>{t("reset.setSubmit")}</SubmitButton>
         </form>
       </FlowShell>
     )
@@ -97,17 +100,17 @@ export function ResetPasswordForm() {
   if (sentTo) {
     return (
       <FlowShell
-        title="Check your email"
-        description={`We sent a 6-digit code to ${sentTo}.`}
-        footer={<TextAction onClick={() => setSentTo(null)}>Use a different email</TextAction>}
+        title={t("signUp.checkEmail")}
+        description={t("codeSentTo", { email: sentTo })}
+        footer={<TextAction onClick={() => setSentTo(null)}>{t("signUp.differentEmail")}</TextAction>}
       >
         <form method="post" onSubmit={verifyCode.onSubmit} className="space-y-4">
-          <CodeField id="code" name="code" label="Reset code" required autoFocus error={fieldError(errors.fields.code)} />
-          <FormError>{formError(errors)}</FormError>
-          <SubmitButton pending={verifyCode.busy}>Continue</SubmitButton>
+          <CodeField id="code" name="code" label={t("resetCode")} required autoFocus error={authErrors.field(errors.fields.code)} />
+          <FormError>{authErrors.form(errors)}</FormError>
+          <SubmitButton pending={verifyCode.busy}>{t("continue")}</SubmitButton>
           <div className="text-center">
             <TextAction onClick={resend} disabled={verifyCode.busy || fetchStatus === "fetching"}>
-              Send a new code
+              {t("sendNewCode")}
             </TextAction>
           </div>
         </form>
@@ -117,22 +120,22 @@ export function ResetPasswordForm() {
 
   // Step 1: which account.
   return (
-    <FlowShell title="Reset your password" description="Enter your email and we'll send you a code." footer={backToSignIn}>
+    <FlowShell title={t("reset.title")} description={t("reset.description")} footer={backToSignIn}>
       {/* method="post": if this ever submitted without JavaScript, nothing lands in the URL */}
       <form method="post" onSubmit={sendCode.onSubmit} className="space-y-4">
         <Field
           id="email"
           name="email"
           type="email"
-          label="Email"
+          label={t("email")}
           autoComplete="email"
           required
           autoFocus
-          error={fieldError(errors.fields.identifier)}
+          error={authErrors.field(errors.fields.identifier)}
         />
-        <FormError>{formError(errors)}</FormError>
+        <FormError>{authErrors.form(errors)}</FormError>
         <SubmitButton pending={sendCode.busy} disabled={!isLoaded}>
-          Send code
+          {t("reset.submit")}
         </SubmitButton>
       </form>
     </FlowShell>
