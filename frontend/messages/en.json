@@ -7,7 +7,8 @@
     "signIn": "Sign in",
     "signUp": "Create account",
     "resetPassword": "Reset password",
-    "privacy": "Privacy policy"
+    "privacy": "Privacy policy",
+    "onboarding": "Get started"
   },
   "chat": {
     "home": "{brand} home",
@@ -48,7 +49,9 @@
     "close": "Close",
     "sidebar": "Sidebar",
     "sidebarDescription": "The navigation and your chats.",
-    "toggleSidebar": "Toggle sidebar"
+    "toggleSidebar": "Toggle sidebar",
+    "back": "Back",
+    "loading": "Loading…"
   },
   "auth": {
     "email": "Email",
@@ -82,7 +85,8 @@
       "haveAccount": "Already have an account? <link>Sign in</link>",
       "checkEmail": "Check your email",
       "verify": "Verify email",
-      "differentEmail": "Use a different email"
+      "differentEmail": "Use a different email",
+      "privacy": "<link>Privacy policy</link>"
     },
     "reset": {
       "title": "Reset your password",
@@ -107,7 +111,9 @@
       "verification_failed": "Too many wrong codes. Send a new one.",
       "user_locked": "This account is locked after too many attempts. Try again later.",
       "too_many_requests": "Too many attempts. Wait a moment and try again."
-    }
+    },
+    "confirmPassword": "Confirm password",
+    "passwordsDontMatch": "Passwords don't match."
   },
   "errors": {
     "not_signed_in": "You're signed out. Sign in again.",
@@ -119,11 +125,129 @@
     "message_too_long": "Messages can be at most {max, number} characters.",
     "coach_unavailable": "{coach} couldn't answer right now. Please try again.",
     "backend_unreachable": "Can't reach the server. Check your connection and try again.",
-    "internal": "Something went wrong. Please try again."
+    "internal": "Something went wrong. Please try again.",
+    "consent_required": "Agree to the privacy policy first.",
+    "policy_outdated": "The privacy policy changed. Reload the page and read the new version.",
+    "invalid_onboarding": "One of your answers isn't valid. Go back and check it.",
+    "already_onboarded": "You've already finished onboarding."
   },
   "privacy": {
     "title": "Privacy policy",
     "lastUpdated": "Last updated {date}",
     "backHome": "{brand} home"
+  },
+  "onboarding": {
+    "step": "Step {n} of {total}",
+    "continue": "Continue",
+    "finish": "Finish",
+    "signOut": "Sign out",
+    "start": {
+      "title": "Before we start",
+      "birthDate": "Date of birth",
+      "consent": "By continuing, you agree to the <link>privacy policy</link>."
+    },
+    "consentOnly": {
+      "title": "Our privacy policy changed",
+      "description": "Read what changed, then continue to keep using {brand}."
+    },
+    "tooYoung": {
+      "title": "{brand} is for 16 and over",
+      "description": "You need to be at least 16 to use {brand}. If you made a mistake with your date of birth, go back and fix it."
+    },
+    "body": {
+      "title": "About you",
+      "units": "Units",
+      "metric": "Metric",
+      "imperial": "Imperial",
+      "sex": "Sex",
+      "male": "Male",
+      "female": "Female",
+      "height": "Height",
+      "feet": "ft",
+      "inches": "in",
+      "weight": "Weight"
+    },
+    "groups": {
+      "title": "What kind of athlete are you?",
+      "description": "Pick all that apply.",
+      "sections": {
+        "weightRoom": "Weight room",
+        "fieldTrack": "Field & track",
+        "health": "Health"
+      },
+      "names": {
+        "strength": "Strength",
+        "physique": "Physique",
+        "functional": "Functional",
+        "endurance": "Endurance",
+        "sport": "Sport",
+        "combat": "Combat",
+        "general": "General fitness"
+      }
+    },
+    "level": {
+      "title": "Your experience level",
+      "lifts": {
+        "squat": "Squat",
+        "bench": "Bench press",
+        "deadlift": "Deadlift"
+      },
+      "race": "Best race",
+      "weight": "Weight",
+      "reps": "Reps",
+      "distance": "Distance",
+      "time": "Time",
+      "timePlaceholder": "h:mm:ss",
+      "times": "×",
+      "levelIs": "Your level:",
+      "levelNote": "Levels are based on relative strength, not the raw weight lifted. Standards from <strength>StrengthLog</strength> and <running>Running Level</running>.",
+      "levels": {
+        "beginner": "Beginner",
+        "novice": "Novice",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "elite": "Elite"
+      },
+      "in": "in",
+      "distances": {
+        "metric": {
+          "5k": "5 km",
+          "10k": "10 km",
+          "half": "Half marathon (21.1 km)",
+          "full": "Marathon (42.2 km)"
+        },
+        "imperial": {
+          "5k": "3.1 mi",
+          "10k": "6.2 mi",
+          "half": "Half marathon (13.1 mi)",
+          "full": "Marathon (26.2 mi)"
+        }
+      }
+    },
+    "findings": {
+      "required": "Fill this in to continue.",
+      "invalid_choice": "Pick one of the options.",
+      "invalid_unit": "Pick a unit.",
+      "invalid_date": "Enter a real date of birth.",
+      "under_16": "You need to be at least {min_age} to use {brand}.",
+      "groups_count": "Pick at least {min}.",
+      "out_of_range": "Enter a value between {min} and {max}.",
+      "reps_out_of_range": "Enter {min} to {max} reps.",
+      "time_out_of_range": "Enter a time of {max} or less.",
+      "unusual_height": "That's an unusual height. Check the number and the unit.",
+      "unusual_weight": "That's an unusual weight. Check the number and the unit.",
+      "impossible_lift": "That's more than the world record at your bodyweight ({record}).",
+      "unusual_lift": "That's {ratio}× your bodyweight, above elite. Are you sure?",
+      "bench_over_deadlift": "Your bench is heavier than your deadlift. Are you sure?",
+      "impossible_time": "That's faster than the world record ({record}).",
+      "unusual_time": "That's a national-class time. Are you sure?"
+    },
+    "finishing": "Setting things up…"
+  },
+  "units": {
+    "kg": "{value} kg",
+    "lb": "{value} lb",
+    "cm": "{value} cm",
+    "ftIn": "{feet} ft {inches} in"
   }
 }

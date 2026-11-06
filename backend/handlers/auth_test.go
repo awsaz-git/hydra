@@ -79,7 +79,7 @@ func setUpDatabase() {
 	if err := db.Migrate(owner); err != nil {
 		log.Fatal("test db migrate: ", err)
 	}
-	if err := owner.Exec("TRUNCATE users, rate_limits CASCADE").Error; err != nil {
+	if err := owner.Exec("TRUNCATE users, rate_limits, profiles, preferences, consents CASCADE").Error; err != nil {
 		log.Fatal("test db reset: ", err)
 	}
 

@@ -38,6 +38,11 @@
   /* brand extras (docs/BRAND.md) */
   --color-bubble: var(--bubble);
   --color-hint: var(--hint);
+  --color-level-beginner: var(--level-beginner);
+  --color-level-novice: var(--level-novice);
+  --color-level-intermediate: var(--level-intermediate);
+  --color-level-advanced: var(--level-advanced);
+  --color-level-elite: var(--level-elite);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -83,6 +88,12 @@
   --sidebar-ring: rgb(var(--effect-light) / 0.25);
   --bubble: #262626;
   --hint: #737373;
+  /* the level colors: the one exception to grayscale, only for showing a level (docs/BRAND.md) */
+  --level-beginner: #9b9b9b;
+  --level-novice: #3dd68c;
+  --level-intermediate: #4ca6ff;
+  --level-advanced: #a78bfa;
+  --level-elite: #ffc53d;
   /* the light used by the effects (glow, shine, spotlight, thinking pulse), as R G B */
   --effect-light: 255 255 255;
 }
@@ -100,6 +111,16 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+  /* No up/down arrows on number fields (owner, 2026-11-07) */
+  input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }
 
@@ -173,6 +194,22 @@
   50% { box-shadow: 0 0 0 1px rgb(var(--effect-light) / 0.2), 0 0 18px rgb(var(--effect-light) / 0.18); }
 }
 
+/* ---- Loading: the logo with a light sweeping through it and a soft breathing glow ---- */
+
+@utility logo-shimmer {
+  background: linear-gradient(100deg, var(--hint) 0%, var(--hint) 35%, var(--foreground) 50%, var(--hint) 65%, var(--hint) 100%);
+  background-size: 250% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+@utility logo-breathe {
+  animation: logo-breathe 1.8s ease-in-out infinite;
+}
+@keyframes logo-breathe {
+  0%, 100% { filter: drop-shadow(0 0 0 rgb(var(--effect-light) / 0)); }
+  50% { filter: drop-shadow(0 0 14px rgb(var(--effect-light) / 0.3)); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .text-shimmer, .coach-pulse { animation: none; }
+  .text-shimmer, .coach-pulse, .logo-shimmer, .logo-breathe { animation: none; }
+  .logo-shimmer { background: var(--foreground); }
 }

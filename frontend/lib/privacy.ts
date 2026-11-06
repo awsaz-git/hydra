@@ -1,4 +1,5 @@
 // The privacy policy's version: the date it was last changed (content/privacy/<locale>.md).
 // The page shows it as "Last updated", and consent (onboarding) records which version a user
-// agreed to. When the policy text changes in a way users must agree to, change this date.
+// agreed to. When the policy text changes in a way users must agree to, change this date
+// AND the backend's services.PrivacyPolicyVersion (consent fails with policy_outdated if they differ).
 export const PRIVACY_POLICY_VERSION = "2026-11-07"

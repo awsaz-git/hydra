@@ -18,6 +18,10 @@ const (
 	codeMessageEmpty         = "message_empty"
 	codeMessageTooLong       = "message_too_long"
 	codeCoachUnavailable     = "coach_unavailable"
+	codeConsentRequired      = "consent_required"
+	codePolicyOutdated       = "policy_outdated"
+	codeInvalidOnboarding    = "invalid_onboarding"
+	codeAlreadyOnboarded     = "already_onboarded"
 	codeInternal             = "internal"
 )
 

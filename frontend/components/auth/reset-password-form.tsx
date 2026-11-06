@@ -7,6 +7,7 @@ import { useAuth, useSignIn } from "@clerk/nextjs"
 import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
+import { LogoLoader } from "@/components/brand/logo-loader"
 import { CodeField, Field, PasswordField } from "@/components/flow/field"
 import { FlowShell } from "@/components/flow/flow-shell"
 import { FormError, SubmitButton, TextAction } from "@/components/flow/form-parts"
@@ -72,7 +73,7 @@ export function ResetPasswordForm() {
   )
 
   if (isSignedIn || signIn.status === "complete") {
-    return <FlowShell title={t("signingIn")}>{null}</FlowShell>
+    return <LogoLoader label={t("signingIn")} />
   }
 
   // Step 3: the code was right.

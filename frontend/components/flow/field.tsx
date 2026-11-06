@@ -24,7 +24,7 @@ type FieldProps = Omit<ComponentProps<"input">, "id"> & {
  * (required, type="email", pattern) show their message here too, instead of the
  * browser's small bubble, which is easy to miss. `error` (from the server) wins.
  */
-export function Field({ id, label, error, labelAction, trailing, className, ...props }: FieldProps) {
+export function Field({ id, label, error, labelAction, trailing, className, onInput, ...props }: FieldProps) {
   const [browserError, setBrowserError] = useState<string | null>(null)
   const shown = error ?? browserError
 
@@ -47,7 +47,10 @@ export function Field({ id, label, error, labelAction, trailing, className, ...p
             e.preventDefault() // no bubble: the message is shown below
             setBrowserError(e.currentTarget.validationMessage)
           }}
-          onInput={() => setBrowserError(null)}
+          onInput={(e) => {
+            setBrowserError(null)
+            onInput?.(e) // the caller's handler too (e.g. sign-up clears "passwords don't match")
+          }}
         />
         {trailing && <div className="absolute inset-y-0 end-1 flex items-center">{trailing}</div>}
       </div>

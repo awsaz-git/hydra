@@ -22,7 +22,7 @@ Only to coach you: to answer your questions, build your plans in your units and 
 - We don't show ads.
 - We don't use your data to train AI models.
 
-Because some of this is health information, we only use it with your explicit consent, which you give in onboarding by ticking a box. You can withdraw it by deleting your account.
+Because some of this is health information, we only use it with your consent, which you give in onboarding by continuing past the first page, where this policy is linked. You can withdraw it by deleting your account.
 
 ## Who else handles your data
 
