@@ -32,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           {/* The chat (sidebar) and the auth pages each have their own layout: app/(chat), app/(auth) */}
           <TooltipProvider>{children}</TooltipProvider>
-          <Toaster position="top-center" />
+          <Toaster position="top-center" duration={3000} />
         </ClerkProvider>
       </body>
     </html>

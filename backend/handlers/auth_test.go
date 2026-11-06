@@ -83,9 +83,22 @@ func setUpDatabase() {
 		log.Fatal("test db reset: ", err)
 	}
 
-	db.DB, err = gorm.Open(postgres.Open(os.Getenv("TEST_DATABASE_URL")), quiet)
+	db.DB, err = gorm.Open(postgres.Open(testAppURL()), quiet)
 	if err != nil {
 		log.Fatal("test db (app): ", err)
+	}
+}
+
+// testAppURL connects as hydra_app, like the real server.
+func testAppURL() string {
+	return os.Getenv("TEST_DATABASE_URL")
+}
+
+// mustDecode parses a JSON response body or fails the test.
+func mustDecode(t *testing.T, body []byte, v any) {
+	t.Helper()
+	if err := json.Unmarshal(body, v); err != nil {
+		t.Fatalf("bad JSON %s: %v", body, err)
 	}
 }
 
@@ -138,6 +151,22 @@ func sign(t *testing.T, alg string, claims map[string]any) string {
 		sig = mac.Sum(nil)
 	}
 	return unsigned + "." + base64.RawURLEncoding.EncodeToString(sig)
+}
+
+// errorOf reads the API's error shape: {"error": {"code", "message", "params"}}.
+func errorOf(t *testing.T, rec *httptest.ResponseRecorder) (string, map[string]any) {
+	t.Helper()
+	var body struct {
+		Error struct {
+			Code    string         `json:"code"`
+			Message string         `json:"message"`
+			Params  map[string]any `json:"params"`
+		} `json:"error"`
+	}
+	if err := json.Unmarshal(rec.Body.Bytes(), &body); err != nil || body.Error.Code == "" || body.Error.Message == "" {
+		t.Fatalf("not the error shape: %s", rec.Body)
+	}
+	return body.Error.Code, body.Error.Params
 }
 
 // call sends one request through the real router (all middleware included).
@@ -207,6 +236,9 @@ func TestRejectsBadTokens(t *testing.T) {
 
 			if rec.Code != http.StatusUnauthorized {
 				t.Errorf("status = %d, want 401", rec.Code)
+			}
+			if code, _ := errorOf(t, rec); code != codeNotSignedIn {
+				t.Errorf("code = %q, want %q", code, codeNotSignedIn)
 			}
 			if got := rec.Header().Get("Cache-Control"); got != "no-store" {
 				t.Errorf("Cache-Control = %q, want no-store", got)
@@ -326,6 +358,9 @@ func TestRateLimit(t *testing.T) {
 	}
 	if rec.Header().Get("Retry-After") == "" {
 		t.Error("429 without Retry-After")
+	}
+	if code, params := errorOf(t, rec); code != codeTooManyRequests || params["retry_after"] == nil {
+		t.Errorf("429 body: code %q, params %v; want %q with retry_after", code, params, codeTooManyRequests)
 	}
 
 	// Another user has their own count.

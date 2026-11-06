@@ -30,17 +30,28 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
 
   const title = conversations.find((c) => c.id === id)?.title || "New chat"
 
-  // Load an existing chat's history.
+  // Load an existing chat's history. If the component goes away before the answer
+  // arrives (you switched chats, or React's dev mode re-runs the effect), the answer is
+  // ignored: no toast, no redirect, no state update for a chat that's no longer shown.
   useEffect(() => {
     if (!conversationId) return
+    let ignore = false
     api
       .getConversation(conversationId)
-      .then((c) => setMessages(c.messages ?? []))
+      .then((c) => {
+        if (!ignore) setMessages(c.messages ?? [])
+      })
       .catch((e) => {
-        toast.error(e instanceof ApiError && e.status === 404 ? "That chat doesn't exist anymore." : e.message)
+        if (ignore) return
+        toast.error(e instanceof ApiError && e.code === "conversation_not_found" ? "That chat doesn't exist anymore." : e.message)
         router.replace("/")
       })
-      .finally(() => setLoading(false))
+      .finally(() => {
+        if (!ignore) setLoading(false)
+      })
+    return () => {
+      ignore = true
+    }
   }, [conversationId, router])
 
   // "New chat" navigates to "/" while this view may still hold a chat: reset it.

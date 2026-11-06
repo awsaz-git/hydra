@@ -18,8 +18,15 @@ import (
 // How many past messages the coach "remembers" when it answers.
 const contextMessages = 20
 
-// ErrCoachFailed means the LLM call failed. The handler answers 502 with this text.
-var ErrCoachFailed = errors.New("the coach couldn't answer right now, please try again")
+// MaxMessageLength is the longest message a user can send, in characters.
+const MaxMessageLength = 4000
+
+// The expected failures; handlers turn each into an error code (handlers/errors.go).
+var (
+	ErrCoachFailed    = errors.New("the coach couldn't answer right now, please try again")
+	ErrMessageEmpty   = errors.New("message can't be empty")
+	ErrMessageTooLong = errors.New("message is too long")
+)
 
 // Every function here takes the signed-in user's ID first and only touches that user's rows:
 // each query has WHERE user_id = ?, and runs in db.AsUser so row-level security checks it too.
@@ -128,11 +135,11 @@ func SendMessage(ctx context.Context, userID string, id string, text string) (mo
 // ValidateMessage checks a message before it's sent to the coach.
 func ValidateMessage(text string) error {
 	if text == "" {
-		return errors.New("message can't be empty")
+		return ErrMessageEmpty
 	}
 
-	if utf8.RuneCountInString(text) > 4000 {
-		return errors.New("message must be 4000 characters or less")
+	if utf8.RuneCountInString(text) > MaxMessageLength {
+		return ErrMessageTooLong
 	}
 
 	return nil

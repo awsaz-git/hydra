@@ -17,7 +17,10 @@ async function forward(req: NextRequest, ctx: RouteContext<"/api/[...path]">) {
   const { userId, getToken } = await auth()
   const token = userId ? await getToken() : null
   if (!token) {
-    return Response.json({ error: "not signed in" }, { status: 401, headers: { "Cache-Control": "no-store" } })
+    return Response.json(
+      { error: { code: "not_signed_in", message: "Not signed in" } },
+      { status: 401, headers: { "Cache-Control": "no-store" } },
+    )
   }
 
   const { path } = await ctx.params
@@ -40,7 +43,10 @@ async function forward(req: NextRequest, ctx: RouteContext<"/api/[...path]">) {
     return new Response(res.status === 204 ? null : res.body, { status: res.status, headers })
   } catch {
     // Backend not running / unreachable
-    return Response.json({ error: "Can't reach the backend. Is it running?" }, { status: 503 })
+    return Response.json(
+      { error: { code: "backend_unreachable", message: "Can't reach the backend. Is it running?" } },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    )
   }
 }
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +14,9 @@ import (
 func health(c *gin.Context) {
 	err := services.CheckDatabase()
 	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "database": err.Error()})
+		// /health is public: the reason goes to the log, not to whoever asks.
+		log.Println("health: database unreachable:", err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "error", "database": "unreachable"})
 		return
 	}
 
