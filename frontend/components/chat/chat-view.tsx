@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { toast } from "sonner"
 
 import { CoachThinking } from "@/components/chat/coach-thinking"
@@ -10,7 +11,8 @@ import { useConversations } from "@/components/chat/conversations-provider"
 import { EmptyState } from "@/components/chat/empty-state"
 import { CoachMessage, UserMessage, type UiMessage } from "@/components/chat/message"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { ApiError, api } from "@/lib/api"
+import { api } from "@/lib/api"
+import { useErrorMessage } from "@/lib/errors"
 
 /**
  * One chat. With no conversationId it's a brand-new chat: the conversation is
@@ -20,6 +22,8 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
   const router = useRouter()
   const pathname = usePathname()
   const { conversations, refresh } = useConversations()
+  const t = useTranslations("chat")
+  const errorMessage = useErrorMessage()
 
   const [id, setId] = useState<string | null>(conversationId ?? null)
   const [messages, setMessages] = useState<UiMessage[]>([])
@@ -28,7 +32,7 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const nextTempId = useRef(-1) // temporary ids (negative) for messages not saved yet
 
-  const title = conversations.find((c) => c.id === id)?.title || "New chat"
+  const title = conversations.find((c) => c.id === id)?.title || t("newChat")
 
   // Load an existing chat's history. If the component goes away before the answer
   // arrives (you switched chats, or React's dev mode re-runs the effect), the answer is
@@ -43,7 +47,7 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
       })
       .catch((e) => {
         if (ignore) return
-        toast.error(e instanceof ApiError && e.code === "conversation_not_found" ? "That chat doesn't exist anymore." : e.message)
+        toast.error(errorMessage(e)) // e.g. "That chat doesn't exist anymore." (conversation_not_found)
         router.replace("/")
       })
       .finally(() => {
@@ -52,7 +56,7 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
     return () => {
       ignore = true
     }
-  }, [conversationId, router])
+  }, [conversationId, router, errorMessage])
 
   // "New chat" navigates to "/" while this view may still hold a chat: reset it.
   // (Adjusting state during render when a value changes is React's recommended
@@ -99,7 +103,7 @@ export function ChatView({ conversationId }: { conversationId?: string }) {
       refresh() // new title / order in the sidebar
     } catch (e) {
       setMessages((m) => m.map((msg) => (msg.id === tempId ? { ...msg, failed: true } : msg)))
-      toast.error(e instanceof Error ? e.message : "Something went wrong")
+      toast.error(errorMessage(e))
     } finally {
       setThinking(false)
     }

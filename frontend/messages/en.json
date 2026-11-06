@@ -1,0 +1,123 @@
+{
+  "brand": {
+    "tagline": "your hybrid training coach",
+    "description": "Your hybrid training coach: strength, speed and running."
+  },
+  "metadata": {
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "resetPassword": "Reset password"
+  },
+  "chat": {
+    "home": "{brand} home",
+    "newChat": "New chat",
+    "today": "Today",
+    "previous": "Previous",
+    "noChats": "No chats yet.",
+    "deleteChat": "Delete chat",
+    "deleteTitle": "Delete this chat?",
+    "deleteDescription": "“{title}” and all its messages will be permanently deleted.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleteFailed": "Couldn't delete that chat. Try again.",
+    "emptyTitle": "What are we training today?",
+    "emptySubtitle": "Strength, speed, running, recovery. Ask {coach} anything.",
+    "suggestions": {
+      "split": "I can train 4 days a week. Build me a split.",
+      "sets": "How many sets per muscle should I do?",
+      "preRun": "What should I eat before a run?"
+    },
+    "composerPlaceholder": "Message {coach}…",
+    "composerLabel": "Message",
+    "send": "Send",
+    "disclaimer": "General training info, not medical advice.",
+    "notSent": "Not sent",
+    "retry": "Retry",
+    "thinking": {
+      "history": "Reading your history…",
+      "rules": "Checking your training rules…",
+      "planning": "Planning your answer…",
+      "writing": "Writing it up…"
+    }
+  },
+  "account": {
+    "signOut": "Sign out"
+  },
+  "ui": {
+    "close": "Close",
+    "sidebar": "Sidebar",
+    "sidebarDescription": "The navigation and your chats.",
+    "toggleSidebar": "Toggle sidebar"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "newPassword": "New password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "verificationCode": "Verification code",
+    "resetCode": "Reset code",
+    "continue": "Continue",
+    "sendNewCode": "Send a new code",
+    "codeSent": "We sent you a new code.",
+    "codeSentTo": "We sent a 6-digit code to {email}.",
+    "signingIn": "Signing you in…",
+    "unsupportedStep": "This account needs a sign-in step we don't support yet.",
+    "securityCheckFailed": "We couldn't run the security check in this browser. Reload the page, or try another browser.",
+    "securityCheckBlocked": "The security check couldn't load. Turn off content blockers for this page and try again.",
+    "signIn": {
+      "title": "Sign in to {brand}",
+      "submit": "Sign in",
+      "forgotPassword": "Forgot password?",
+      "newHere": "New here? <link>Create an account</link>",
+      "trustTitle": "Confirm it's you",
+      "trustDescription": "You're signing in on a new device, so we sent a 6-digit code to your email.",
+      "startOver": "Start over",
+      "pwned": "This password appeared in a data breach on another site, so it can't be used any more. <link>Set a new password</link>"
+    },
+    "signUp": {
+      "title": "Create your {brand} account",
+      "submit": "Create account",
+      "haveAccount": "Already have an account? <link>Sign in</link>",
+      "checkEmail": "Check your email",
+      "verify": "Verify email",
+      "differentEmail": "Use a different email"
+    },
+    "reset": {
+      "title": "Reset your password",
+      "description": "Enter your email and we'll send you a code.",
+      "submit": "Send code",
+      "backToSignIn": "Back to sign in",
+      "newTitle": "Choose a new password",
+      "newDescription": "You'll be signed out on every other device.",
+      "setSubmit": "Set password and sign in"
+    },
+    "clerkErrors": {
+      "form_identifier_not_found": "Couldn't find your account.",
+      "form_identifier_exists": "An account with this email already exists. Sign in instead.",
+      "form_param_format_invalid": "That doesn't look like a valid email address.",
+      "form_password_incorrect": "That password isn't right. Try again, or reset it.",
+      "form_password_pwned": "This password appeared in a data breach on another site. Choose a different one.",
+      "form_password_length_too_short": "Your password is too short.",
+      "form_password_not_strong_enough": "Your password is too easy to guess. Try a longer one or add more words.",
+      "form_password_size_in_bytes_exceeded": "Your password is too long.",
+      "form_code_incorrect": "That code isn't right. Check it and try again.",
+      "verification_expired": "That code has expired. Send a new one.",
+      "verification_failed": "Too many wrong codes. Send a new one.",
+      "user_locked": "This account is locked after too many attempts. Try again later.",
+      "too_many_requests": "Too many attempts. Wait a moment and try again."
+    }
+  },
+  "errors": {
+    "not_signed_in": "You're signed out. Sign in again.",
+    "too_many_requests": "Too many requests. Try again in {retry_after, plural, one {# second} other {# seconds}}.",
+    "not_found": "That page doesn't exist.",
+    "conversation_not_found": "That chat doesn't exist anymore.",
+    "invalid_body": "Something went wrong. Please try again.",
+    "message_empty": "Write a message first.",
+    "message_too_long": "Messages can be at most {max, number} characters.",
+    "coach_unavailable": "{coach} couldn't answer right now. Please try again.",
+    "backend_unreachable": "Can't reach the server. Check your connection and try again.",
+    "internal": "Something went wrong. Please try again."
+  }
+}

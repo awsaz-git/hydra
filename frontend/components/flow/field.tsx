@@ -3,6 +3,7 @@
 import { useState, type ComponentProps, type ReactNode } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons"
+import { useTranslations } from "next-intl"
 
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
@@ -12,7 +13,7 @@ type FieldProps = Omit<ComponentProps<"input">, "id"> & {
   label: string
   /** Shown under the input in red; also marks the input invalid for screen readers. */
   error?: string | null
-  /** Something on the label's line, right-aligned (e.g. a "Forgot password?" link). */
+  /** Something on the label's line, at its end (e.g. a "Forgot password?" link). */
   labelAction?: ReactNode
   /** A small button inside the input, at its end (e.g. show/hide password). */
   trailing?: ReactNode
@@ -40,7 +41,7 @@ export function Field({ id, label, error, labelAction, trailing, className, ...p
           id={id}
           aria-invalid={shown ? true : undefined}
           aria-describedby={shown ? `${id}-error` : undefined}
-          className={cn("h-10 rounded-[10px] px-3 text-[15px]", trailing && "pr-10", className)}
+          className={cn("h-10 rounded-[10px] px-3 text-[15px]", trailing && "pe-10", className)}
           {...props}
           onInvalid={(e) => {
             e.preventDefault() // no bubble: the message is shown below
@@ -48,7 +49,7 @@ export function Field({ id, label, error, labelAction, trailing, className, ...p
           }}
           onInput={() => setBrowserError(null)}
         />
-        {trailing && <div className="absolute inset-y-0 right-1 flex items-center">{trailing}</div>}
+        {trailing && <div className="absolute inset-y-0 end-1 flex items-center">{trailing}</div>}
       </div>
       {shown && (
         <p id={`${id}-error`} className="text-[13px] text-destructive">
@@ -62,6 +63,7 @@ export function Field({ id, label, error, labelAction, trailing, className, ...p
 /** A password Field with a show/hide button, so long passwords can be checked before sending. */
 export function PasswordField(props: Omit<FieldProps, "type">) {
   const [visible, setVisible] = useState(false)
+  const t = useTranslations("auth")
 
   return (
     <Field
@@ -71,7 +73,7 @@ export function PasswordField(props: Omit<FieldProps, "type">) {
         <button
           type="button"
           onClick={() => setVisible(!visible)}
-          aria-label={visible ? "Hide password" : "Show password"}
+          aria-label={visible ? t("hidePassword") : t("showPassword")}
           className="flex size-8 items-center justify-center rounded-md text-hint transition-colors hover:text-foreground"
         >
           <HugeiconsIcon icon={visible ? ViewOffIcon : ViewIcon} size={18} strokeWidth={1.5} />

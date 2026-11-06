@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Delete02Icon, PencilEdit02Icon } from "@hugeicons/core-free-icons"
 
@@ -47,6 +48,7 @@ function groupByDay(list: Conversation[], today: string) {
 }
 
 export function AppSidebar() {
+  const t = useTranslations("chat")
   const { conversations, today: todayDate, loading, remove } = useConversations()
   const pathname = usePathname()
   const router = useRouter()
@@ -66,7 +68,7 @@ export function AppSidebar() {
       await remove(id)
       if (pathname === `/c/${id}`) router.push("/")
     } catch {
-      toast.error("Couldn't delete that chat. Try again.")
+      toast.error(t("deleteFailed"))
     }
   }
 
@@ -79,13 +81,13 @@ export function AppSidebar() {
             <SidebarMenuItem key={c.id}>
               <SidebarMenuButton asChild isActive={pathname === `/c/${c.id}`} className="text-muted-foreground data-[active=true]:shine">
                 <Link href={`/c/${c.id}`} onClick={closeOnMobile}>
-                  <span className="truncate">{c.title || "New chat"}</span>
+                  <span className="truncate">{c.title || t("newChat")}</span>
                 </Link>
               </SidebarMenuButton>
               <SidebarMenuAction showOnHover onClick={() => {
                   setPendingDelete(c)
                   setDialogOpen(true)
-                }} aria-label="Delete chat">
+                }} aria-label={t("deleteChat")}>
                 <HugeiconsIcon icon={Delete02Icon} strokeWidth={1.5} />
               </SidebarMenuAction>
             </SidebarMenuItem>
@@ -98,13 +100,13 @@ export function AppSidebar() {
     <>
       <Sidebar>
         <SidebarHeader className="gap-4 p-4">
-          <Link href="/" aria-label={`${brand.name} home`}>
+          <Link href="/" aria-label={t("home", { brand: brand.name })}>
             <Logo />
           </Link>
           <Button asChild className="edge-glow hover:edge-glow-hover h-9 w-full rounded-[10px] transition-shadow duration-500 ease-out hover:bg-primary">
             <Link href="/" onClick={closeOnMobile}>
               <HugeiconsIcon icon={PencilEdit02Icon} strokeWidth={1.5} />
-              New chat
+              {t("newChat")}
             </Link>
           </Button>
         </SidebarHeader>
@@ -117,11 +119,11 @@ export function AppSidebar() {
               ))}
             </SidebarMenu>
           ) : conversations.length === 0 ? (
-            <p className="px-4 py-2 text-sm text-hint">No chats yet.</p>
+            <p className="px-4 py-2 text-sm text-hint">{t("noChats")}</p>
           ) : (
             <>
-              {renderGroup("Today", today)}
-              {renderGroup("Previous", previous)}
+              {renderGroup(t("today"), today)}
+              {renderGroup(t("previous"), previous)}
             </>
           )}
         </SidebarContent>
@@ -134,15 +136,15 @@ export function AppSidebar() {
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this chat?</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              &ldquo;{pendingDelete?.title || "New chat"}&rdquo; and all its messages will be permanently deleted.
+              {t("deleteDescription", { title: pendingDelete?.title || t("newChat") })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
             <AlertDialogAction variant="destructive" onClick={confirmDelete}>
-              Delete
+              {t("delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
