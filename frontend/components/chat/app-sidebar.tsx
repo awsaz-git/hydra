@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Delete02Icon, PencilEdit02Icon } from "@hugeicons/core-free-icons"
 
+import { AccountFooter } from "@/components/auth/account-footer"
 import { Logo } from "@/components/brand/logo"
 import { useConversations } from "@/components/chat/conversations-provider"
 import {
@@ -23,6 +24,7 @@ import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
   SidebarHeader,
@@ -123,6 +125,10 @@ export function AppSidebar() {
             </>
           )}
         </SidebarContent>
+
+        <SidebarFooter className="border-t p-3">
+          <AccountFooter />
+        </SidebarFooter>
       </Sidebar>
 
       <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>

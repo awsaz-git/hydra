@@ -12,6 +12,7 @@ import (
 	"hydra/backend/config"
 	"hydra/backend/db"
 	"hydra/backend/handlers"
+	"hydra/backend/services"
 )
 
 func main() {
@@ -59,8 +60,12 @@ func serve() {
 	if os.Getenv("LLM_API_KEY") == "" {
 		log.Fatal("LLM_API_KEY is not set (put it in backend/.env)")
 	}
+	// Every /api request needs a Clerk token; without the key nobody could sign in, so stop here.
+	err := services.InitAuth(os.Getenv("CLERK_JWT_KEY"), os.Getenv("CLERK_AUTHORIZED_PARTIES"))
+	if err != nil {
+		log.Fatal("auth setup failed (check CLERK_JWT_KEY and CLERK_AUTHORIZED_PARTIES in backend/.env): ", err)
+	}
 
-	var err error
 	db.DB, err = gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
 	if err != nil {
 		// In Kubernetes the Pod crashes here and is restarted until the database is reachable.
